@@ -1,11 +1,14 @@
 #include "Engine.h"
 
-const sf::Time Engine::m_timePerFrame = sf::seconds(1.f/24.f);
+const sf::Time Engine::m_timePerFrame = sf::seconds(1.f/120.f);
 
 Engine::Engine()
-: m_window(sf::VideoMode(600, 600), "Chess"), m_pieceChoisie('0'), m_coordPieceChoisie(0,0)
-, m_board()
+: m_window(sf::VideoMode(TAILLE_FENETRE_X, TAILLE_FENETRE_Y), "Chess", sf::Style::Close), m_pieceChoisie('0'), m_coordPieceChoisie(0,0)
+, m_board(m_window)
 {
+	texture.loadFromFile("assets/piece.png");
+	texture.setSmooth(true);
+	ma_piece.setTexture(texture);
 	ma_piece.scale(m_window.getSize().x/1600.f, m_window.getSize().y/1600.f);
 }
 
@@ -18,7 +21,7 @@ void Engine::run()
 	{
 		processEvents();
 		timeSinceLastUpdate += clock.restart();
-		
+
 		while (timeSinceLastUpdate > m_timePerFrame)
 		{
 			timeSinceLastUpdate -= m_timePerFrame;
@@ -86,17 +89,17 @@ void Engine::handleKeyInput(sf::Keyboard::Key key, bool isPressed)
 
 void Engine::handleMouseInput(sf::Mouse::Button mouse, bool isPressed)
 {
-    if(mouse == sf::Mouse::Left) { this-> MouseL = isPressed; 
+    if(mouse == sf::Mouse::Left) { this-> MouseL = isPressed;
 		if(!isPressed) { this->MouseLPressed=false; }
 	}
-    if(mouse == sf::Mouse::Right) { this-> MouseR = isPressed; 
+    if(mouse == sf::Mouse::Right) { this-> MouseR = isPressed;
 		if(!isPressed) { this->MouseRPressed=false; }
 	}
 }
 
 bool Engine::isInside() const
 {
-	if(sf::Mouse::getPosition(m_window).x>0 && sf::Mouse::getPosition(m_window).x< 600 && sf::Mouse::getPosition(m_window).y>0 && sf::Mouse::getPosition(m_window).y< 600) {
+	if(sf::Mouse::getPosition(m_window).x>0 && sf::Mouse::getPosition(m_window).x < int(m_window.getSize().x) && sf::Mouse::getPosition(m_window).y>0 && sf::Mouse::getPosition(m_window).y< int(m_window.getSize().y)) {
 		return true;
 	}
 	else { return false; }
@@ -105,52 +108,48 @@ bool Engine::isInside() const
 
 void Engine::update()
 {
-	std::string directory = "assets/";
-	std::string color;
-	std::string ext = ".png";
-	std::string path;
+
 
 	if(isInside())
 	{
 		if(MouseL && !MouseLPressed){
 			m_pieceChoisie = m_board.getBoard(sf::Mouse::getPosition(m_window).x, sf::Mouse::getPosition(m_window).y);
-			m_coordPieceChoisie = sf::Vector2i(sf::Mouse::getPosition(m_window).x*8/600, sf::Mouse::getPosition(m_window).y*8/600);
+			m_coordPieceChoisie = sf::Vector2i(sf::Mouse::getPosition(m_window).x*8/m_window.getSize().x, sf::Mouse::getPosition(m_window).y*8/m_window.getSize().y);
 			m_board.setBoard(m_coordPieceChoisie.x, m_coordPieceChoisie.y, '0');
 			this->MouseLPressed=true;
 
+			m_window.setMouseCursorVisible(false);
+			std::string pieces = "rnbqkpRNBQKP";
+
+			int indice_piece = pieces.find_first_of(m_pieceChoisie);
+			int colonne = 0;
+			if(indice_piece > 5) { 
+				indice_piece -= 6; 
+				colonne = 1;
+			}
 			
+			ma_piece.setTextureRect(sf::IntRect(sf::Vector2i( indice_piece* 200.f, colonne *200.f),sf::Vector2i(200.f,200.f)));
 		}
 
 		if(!MouseL)
 		{
 			if(m_pieceChoisie != '0') {
-				m_board.setBoard(sf::Mouse::getPosition(m_window).x*8/600, sf::Mouse::getPosition(m_window).y*8/600, m_pieceChoisie);
+				m_board.setBoard(sf::Mouse::getPosition(m_window).x*8/m_window.getSize().x, sf::Mouse::getPosition(m_window).y*8/m_window.getSize().y, m_pieceChoisie);
 			}
 			m_pieceChoisie = '0';
 		}
 	}
-	
-	
-	
-	if(m_pieceChoisie != '0') {
-		if(int(m_pieceChoisie) <= 90)
-			color = "white/";
-		else {
-			color = "black/";
-		}
-		path = directory + color + m_pieceChoisie + ext;
-			texture.loadFromFile(path);
-			ma_piece.setTexture(texture);
-			
-			ma_piece.setPosition(sf::Mouse::getPosition(m_window).x - 37 ,sf::Mouse::getPosition(m_window).y - 37);
-	}
 
+	if(m_pieceChoisie != '0') {
+		ma_piece.setPosition(sf::Mouse::getPosition(m_window).x - ma_piece.getGlobalBounds().width/2 ,sf::Mouse::getPosition(m_window).y - ma_piece.getGlobalBounds().height/2);
+	}
+	else{ m_window.setMouseCursorVisible(true); }
 }
 
 void Engine::render()
 {
 	m_window.clear();
-	m_window.draw(m_board);
+	m_board.draw();
 	if(m_pieceChoisie != '0'){m_window.draw(ma_piece);}
 	m_window.display();
 }

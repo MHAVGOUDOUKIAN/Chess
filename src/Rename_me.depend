@@ -419,23 +419,27 @@
 	<SFML/Graphics/Drawable.hpp>
 	<SFML/Window/GlResource.hpp>
 
-1617813710 source:c:\users\periodic element\desktop\chess-main\src\main.cpp
+1617959925 source:c:\users\periodic element\desktop\chess-main\src\main.cpp
 	"sfmlGame/Engine.h"
 
-1617829910 c:\users\periodic element\desktop\chess-main\src\sfmlgame\engine.h
+1617967664 c:\users\periodic element\desktop\chess-main\src\sfmlgame\engine.h
 	"Board.h"
 	<iostream>
+	"Parametre.h"
 
-1617823959 c:\users\periodic element\desktop\chess-main\src\sfmlgame\board.h
+1617968461 c:\users\periodic element\desktop\chess-main\src\sfmlgame\board.h
 	<SFML/Graphics.hpp>
 	<iostream>
 	<string>
+	"Parametre.h"
 
-1617828907 source:c:\users\periodic element\desktop\chess-main\src\sfmlgame\board.cpp
+1617971096 source:c:\users\periodic element\desktop\chess-main\src\sfmlgame\board.cpp
 	"Board.h"
 
-1617830005 source:c:\users\periodic element\desktop\chess-main\src\sfmlgame\engine.cpp
+1617971601 source:c:\users\periodic element\desktop\chess-main\src\sfmlgame\engine.cpp
 	"Engine.h"
 
 1617813710 source:c:\users\periodic element\desktop\chess-main\src\sfmlgame\rules.cpp
+
+1617971945 c:\users\periodic element\desktop\chess-main\src\sfmlgame\parametre.h
 

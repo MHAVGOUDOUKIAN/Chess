@@ -3,6 +3,7 @@
 
 #include "Board.h"
 #include <iostream>
+#include "Parametre.h"
 
 class Engine
 {
@@ -32,6 +33,10 @@ private :
 	Board m_board;
 	sf::Texture texture;
 	sf::Sprite ma_piece;
+	std::string directory = "assets/";
+	std::string color;
+	std::string ext = ".png";
+	std::string path;
 };
 
 #endif //ENGINE_H

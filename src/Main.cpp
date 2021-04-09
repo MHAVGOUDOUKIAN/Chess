@@ -3,10 +3,7 @@
 int main()
 {
 	try
-	{
-		Board b;
-		b.print();
-		
+	{		
 		Engine engine;
 		engine.run();
 	}

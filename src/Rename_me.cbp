@@ -55,6 +55,7 @@
 		<Unit filename="sfmlGame/Board.h" />
 		<Unit filename="sfmlGame/Engine.cpp" />
 		<Unit filename="sfmlGame/Engine.h" />
+		<Unit filename="sfmlGame/Parametre.h" />
 		<Unit filename="sfmlGame/Rules.cpp" />
 		<Unit filename="sfmlGame/Rules.h" />
 		<Extensions />

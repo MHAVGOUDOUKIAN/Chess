@@ -1,9 +1,36 @@
 #include "Board.h"
 
-Board::Board()
-: m_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+Board::Board(sf::RenderTarget& m_target)
+: m_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"), m_echequier(sf::Quads,4 * 64)
 {
+	this->target = &m_target;
 	deduceTableFromFen();
+	piece.loadFromFile("assets/piece.png");
+	piece.setSmooth(true);
+	sprite.setTexture(piece);
+	sprite.scale(target->getSize().x/1600.f, target->getSize().y/1600.f); // 1600 = 200 * 8 (taille de l'image * nombre de cases)
+
+	
+
+	// on dessine le plateau une bonne fois pour toute => réduction du nombre d'appel à draw pdt exécution
+	bool black = false;
+	for(short i=0; i<8; i++) {
+		for(short j=0; j<8; j++)
+		{
+			m_echequier[(i*8 + j)*4].position = sf::Vector2f(j * target->getSize().x/8.f, i * target->getSize().y/8.f);
+			m_echequier[(i*8 + j)*4+1].position = sf::Vector2f((j+1) * target->getSize().x/8.f, i * target->getSize().y/8.f);
+			m_echequier[(i*8 + j)*4+2].position = sf::Vector2f((j+1) * target->getSize().x/8.f, (i+1) * target->getSize().y/8.f);
+			m_echequier[(i*8 + j)*4+3].position = sf::Vector2f(j * target->getSize().x/8.f, (i+1) * target->getSize().y/8.f);
+
+			m_echequier[(i*8 + j)*4].color = black ? sf::Color(181, 136, 99) : sf::Color(240, 217, 181);
+			m_echequier[(i*8 + j)*4+1].color = black ? sf::Color(181, 136, 99) : sf::Color(240, 217, 181);
+			m_echequier[(i*8 + j)*4+2].color = black ? sf::Color(181, 136, 99) : sf::Color(240, 217, 181);
+			m_echequier[(i*8 + j)*4+3].color = black ? sf::Color(181, 136, 99) : sf::Color(240, 217, 181);
+
+			black = !black;
+		}
+		black = !black;
+	}
 }
 
 void Board::deduceTableFromFen()
@@ -41,47 +68,31 @@ void Board::deduceTableFromFen()
 	}
 }
 
-void Board::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void Board::draw()
 {
-	sf::Texture texture;
-	texture.loadFromFile("assets/white/K.png");
-	texture.setSmooth(true);
-	sf::Sprite sprite;
-	sprite.setTexture(texture);
-	sprite.scale(target.getSize().x/1600.f, target.getSize().y/1600.f); // 1600 = 200 * 8 (taille de l'image * nombre de cases)
+	target->draw(m_echequier);	
 
-	std::string directory = "assets/";
-	std::string color;
-	std::string ext = ".png";
-	std::string path;
-	
-	sf::RectangleShape rectangle;
-	rectangle.setSize(sf::Vector2f((target.getSize().x+1.f)/8.f, (target.getSize().y+1.f)/8.f));
-	
-	for (std::size_t i = 0; i < 8; ++i)
+	for (short i = 0; i < 8; ++i)
 	{
-		for (std::size_t j = 0; j < 8; ++j)
+		for (short j = 0; j < 8; ++j)
 		{
-			rectangle.setPosition((i*target.getSize().x+1.f)/8, (j*target.getSize().y+1.f)/8);
-			if((i+j)%2 == 0)
-				rectangle.setFillColor(sf::Color(240, 217, 181));
-			else
-				rectangle.setFillColor(sf::Color(181, 136, 99));
-			target.draw(rectangle, states);
-			
-			std::string pieces = "pnbrqkPNBRQK";
+			std::string pieces = "rnbqkpRNBQKP";
 			char cursor = m_table[j][i];
+
 			if(pieces.find_first_of(cursor) < pieces.size())
 			{
-				if(int(cursor) <= 90)
-					color = "white/";
-				else
-					color = "black/";
+				int indice_piece = pieces.find_first_of(cursor);
 
-				path = directory + color + cursor + ext;
-				texture.loadFromFile(path);
-				sprite.setPosition((i*target.getSize().x+1.f)/8, (j*target.getSize().y+1.f)/8);
-				target.draw(sprite, states);
+				int colonne = 0;
+				if(indice_piece > 5) { 
+					indice_piece -= 6; 
+					colonne = 1;
+				}
+
+				sprite.setTextureRect(sf::IntRect(sf::Vector2i( indice_piece* 200.f, colonne *200.f),sf::Vector2i(200.f,200.f))); 
+
+				sprite.setPosition((i*target->getSize().x+1.f)/8, (j*target->getSize().y+1.f)/8);
+				target->draw(sprite);
 			}
 		}
 	}
@@ -111,5 +122,5 @@ void Board::setBoard(const int x, const int y, const char piece) // x, y en pixe
 
 char Board::getBoard( int x,  int y) const
 {
-	return m_table[y*8/600][x*8/600];
+	return m_table[y*8/target->getSize().y][x*8/target->getSize().x];
 }
